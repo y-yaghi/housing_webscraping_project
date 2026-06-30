@@ -5,10 +5,12 @@ from folium.plugins import MarkerCluster, HeatMap
 import streamlit.components.v1 as components
 import html
 import math
+import base64
+from pathlib import Path
 
 st.set_page_config(
     page_title="Virginia Housing Dashboard",
-    page_icon="🏠",
+    page_icon="assets/Adobe Express - file.png",
     layout="wide"
 )
 
@@ -56,7 +58,11 @@ st.markdown(
 
 
     .app-title {
-        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+
+        font-size: 14px;
         font-weight: 600;
         color: #1f2933;
         white-space: nowrap;
@@ -65,6 +71,13 @@ st.markdown(
         text-overflow: ellipsis;
         margin-top: -15px;
         padding-left: 20px;
+    }
+
+    .title-logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        flex-shrink: 0;
     }
 
     .total {
@@ -419,13 +432,27 @@ original_df = df.copy()
 if "page" not in st.session_state:
     st.session_state.page = "Map"
 
+def image_to_base64(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+    
+logo_base64 = image_to_base64("assets/Adobe Express - file.png")
+
 # ---------------- TOP BAR ----------------
 title_col, search_col, map_col, table_col, stats_col, total_col = st.columns(
     [2.15, 3.95, 0.65, 0.70, 0.70, 1.55]
 )
 
 with title_col:
-    st.markdown('<div class="app-title">🏠 Virginia Housing Tracker</div>', unsafe_allow_html=True)
+    st.markdown(
+    f"""
+    <div class="app-title">
+        <img src="data:image/png;base64,{logo_base64}" class="title-logo">
+        <span>Virginia Housing Tracker</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 with search_col:
     search_text = st.text_input(
