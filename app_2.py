@@ -21,9 +21,6 @@ st.markdown(
 
     header {visibility: hidden;}
 
-    * {
-        font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-    }
 
     .stApp {
         background: white;
@@ -394,6 +391,17 @@ st.markdown(
 
     div[data-testid="stNumberInput"] {
         margin-top: 2px !important;
+    }
+
+    html, body, .stApp, p, div:not([data-testid="stIconMaterial"]), button, input, label {
+        font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+
+    /* Keep Streamlit icons working */
+    span[data-testid="stIconMaterial"] {
+        font-family: "Material Symbols Rounded" !important;
+        font-weight: normal !important;
+        font-style: normal !important;
     }
 
     </style>
@@ -943,7 +951,7 @@ if page == "Map":
                 and row.get("property_id") == focused_property_id
             )
 
-            popup = make_home_popup(row) if is_focused else None
+            popup = make_home_popup(row)
 
             folium.CircleMarker(
                 location=[row["latitude"], row["longitude"]],
@@ -985,7 +993,7 @@ if page == "Map":
                 and row.get("property_id") == focused_property_id
             )
 
-            popup = make_home_popup(row) if is_focused else None
+            popup = make_home_popup(row)
 
             folium.CircleMarker(
                 location=[row["latitude"], row["longitude"]],
@@ -1202,31 +1210,13 @@ elif page == "Table":
             st.markdown(sqft)
         with cols[7]:
             if st.button("🔍", key=f"view_home_{i}"):
-                st.session_state.selected_home_index = i
-
-        if st.session_state.get("selected_home_index") == i:
-            c1, c2, c3 = st.columns([1.2, .6, .6])
-
-            with c1:
-                st.markdown(
-                    '<div class="go-map-box">Go to map?</div>',
-                    unsafe_allow_html=True
-                )
-
-            with c2:
-                if st.button("Yes", key=f"go_map_{i}"):
-                    st.session_state.focus_home = {
-                        "lat": row.get("latitude"),
-                        "lon": row.get("longitude"),
-                        "property_id": row.get("property_id"),
-                    }
-                    st.session_state.page = "Map"
-                    st.rerun()
-
-            with c3:
-                if st.button("Stay", key=f"stay_table_{i}"):
-                    st.session_state.selected_home_index = None
-                    st.rerun()
+                st.session_state.focus_home = {
+                    "lat": row.get("latitude"),
+                    "lon": row.get("longitude"),
+                    "property_id": row.get("property_id"),
+                }
+                st.session_state.page = "Map"
+                st.rerun()
 
     # ---------- PAGINATION CONTROLS ----------
     st.divider()
