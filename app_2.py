@@ -954,7 +954,7 @@ if page == "Map":
                 and row.get("property_id") == focused_property_id
             )
 
-            popup = make_home_popup(row)
+            popup = make_home_popup(row) if is_focused else None
 
             folium.CircleMarker(
                 location=[row["latitude"], row["longitude"]],
@@ -996,7 +996,7 @@ if page == "Map":
                 and row.get("property_id") == focused_property_id
             )
 
-            popup = make_home_popup(row)
+            popup = make_home_popup(row) if is_focused else None
 
             folium.CircleMarker(
                 location=[row["latitude"], row["longitude"]],
