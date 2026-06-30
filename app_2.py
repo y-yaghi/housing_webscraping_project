@@ -522,10 +522,13 @@ def multi_filter_popover(label, options, key, marker_class=None):
                 st.session_state[applied_key] = []
                 st.session_state[draft_key] = []
 
-                for option in options:
-                    checkbox_key = f"{key}_check_{str(option).replace(' ', '_')}"
-                    if checkbox_key in st.session_state:
-                        st.session_state[checkbox_key] = False
+                keys_to_delete = [
+                    clear_key for clear_key in st.session_state.keys()
+                    if clear_key.startswith(f"{key}_check_")
+                ]
+
+                for clear_key in keys_to_delete:
+                    del st.session_state[clear_key]
 
                 st.rerun()
 
