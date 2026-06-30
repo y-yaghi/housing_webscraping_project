@@ -1,15 +1,26 @@
 from homeharvest import scrape_property
 from datetime import datetime
 from pathlib import Path
+import pandas as pd
+
+# ---------------- PATHS ----------------
 
 DATA_DIR = Path("data")
 ARCHIVE_DIR = DATA_DIR / "archive"
 
-DATA_DIR.mkdir(exist_ok=True)
-ARCHIVE_DIR.mkdir(exist_ok=True)
+LATEST_FILE = DATA_DIR / "virginia_housing_raw.csv"
 
-current_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-today_date = datetime.now().strftime("%Y-%m-%d")
+DATA_DIR.mkdir(exist_ok=True)
+ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+
+# ---------------- SCRAPE ----------------
+
+run_time = datetime.now()
+today = run_time.strftime("%Y-%m-%d")
+timestamp = run_time.strftime("%Y-%m-%d_%H-%M-%S")
+
+print("Starting Realtor scrape...")
+print(f"Run time: {timestamp}")
 
 listings = scrape_property(
     location="Virginia",
@@ -17,16 +28,29 @@ listings = scrape_property(
     past_days=7
 )
 
-listings["scrape_timestamp"] = current_timestamp
+print(f"Scrape finished. Rows collected: {len(listings):,}")
 
-# 1. Save timestamped archive copy
-archive_file = ARCHIVE_DIR / f"virginia_housing_raw_{today_date}.csv"
+# ---------------- VALIDATION ----------------
+
+if listings is None or listings.empty:
+    raise ValueError("Scrape returned no listings. Keeping existing files unchanged.")
+
+listings["scrape_date"] = today
+listings["scrape_timestamp"] = timestamp
+
+# ---------------- SAVE LATEST FILE ----------------
+
+listings.to_csv(LATEST_FILE, index=False)
+print(f"Updated latest dashboard file: {LATEST_FILE}")
+
+# ---------------- SAVE ARCHIVE FILE ----------------
+
+archive_file = ARCHIVE_DIR / f"virginia_housing_raw_{today}.csv"
+
+if archive_file.exists():
+    archive_file = ARCHIVE_DIR / f"virginia_housing_raw_{timestamp}.csv"
+
 listings.to_csv(archive_file, index=False)
-
-# 2. Save latest copy for dashboard
-latest_file = DATA_DIR / "virginia_housing_raw.csv"
-listings.to_csv(latest_file, index=False)
-
-print(f"Saved latest file: {latest_file}")
 print(f"Saved archive file: {archive_file}")
-print(f"Rows: {len(listings)}")
+
+print("Scraper completed successfully.")
